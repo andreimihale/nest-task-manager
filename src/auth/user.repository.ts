@@ -5,7 +5,7 @@ import { User } from './entities/user.entity';
 
 @Injectable()
 export class UserRepository extends BaseRepository {
-  constructor(@Inject('DATA_SOURCE') dataSource: DataSource) {
+  constructor(@Inject('DATABASE_CONNECTION') dataSource: DataSource) {
     super(dataSource);
   }
 

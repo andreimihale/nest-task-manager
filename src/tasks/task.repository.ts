@@ -23,7 +23,7 @@ export class TaskResponse {
 
 @Injectable()
 export class TaskRepository extends BaseRepository {
-  constructor(@Inject('DATA_SOURCE') dataSource: DataSource) {
+  constructor(@Inject('DATABASE_CONNECTION') dataSource: DataSource) {
     super(dataSource);
   }
 
