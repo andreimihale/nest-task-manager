@@ -196,7 +196,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/User"
+                  "$ref": "#/components/schemas/AuthResponseDto"
                 }
               }
             }
@@ -227,7 +227,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/User"
+                  "$ref": "#/components/schemas/AuthResponseDto"
                 }
               }
             }
@@ -295,6 +295,11 @@
             }
           }
         },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
         "tags": [
           "Auth"
         ]
@@ -325,6 +330,11 @@
             }
           }
         },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
         "tags": [
           "Auth"
         ]
@@ -340,6 +350,16 @@
   "tags": [],
   "servers": [],
   "components": {
+    "securitySchemes": {
+      "access-token": {
+        "scheme": "Bearer",
+        "bearerFormat": "Bearer",
+        "description": "[just text field] Please enter token in following format: Bearer <JWT>",
+        "name": "Authorization",
+        "type": "http",
+        "in": "Header"
+      }
+    },
     "schemas": {
       "Task": {
         "type": "object",
@@ -474,6 +494,21 @@
           "updatedAt",
           "username",
           "email"
+        ]
+      },
+      "AuthResponseDto": {
+        "type": "object",
+        "properties": {
+          "user": {
+            "$ref": "#/components/schemas/User"
+          },
+          "accessToken": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "user",
+          "accessToken"
         ]
       },
       "AuthCredentialsDto": {

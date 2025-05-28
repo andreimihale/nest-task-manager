@@ -1,16 +1,32 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import { AuthCredentialsDto } from './dto/auth-credentials.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UserFilterDto } from './dto/user-filter.dto';
 import { User } from './entities/user.entity';
+import { JwtPayload } from './strategies/jwt.strategy';
 import { UserRepository, UserResponse } from './user.repository';
+
+export interface AuthResponse {
+  user: User;
+  accessToken: string;
+}
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly userRepository: UserRepository) {}
+  constructor(
+    private readonly userRepository: UserRepository,
+    private readonly jwtService: JwtService,
+  ) {}
 
-  async signUp(createUserDto: CreateUserDto): Promise<User> {
-    return this.userRepository.createUser(createUserDto);
+  async signUp(createUserDto: CreateUserDto): Promise<AuthResponse> {
+    const user = await this.userRepository.createUser(createUserDto);
+    const accessToken = this.generateJwtToken(user);
+
+    return {
+      user,
+      accessToken,
+    };
   }
 
   async getUsers(filterDto: UserFilterDto): Promise<UserResponse> {
@@ -21,7 +37,7 @@ export class AuthService {
     return this.userRepository.findUserById(id);
   }
 
-  async login(authCredentialsDto: AuthCredentialsDto): Promise<User> {
+  async login(authCredentialsDto: AuthCredentialsDto): Promise<AuthResponse> {
     const { username, password } = authCredentialsDto;
     const user = await this.userRepository.findUserByUsernameOrEmail(username);
 
@@ -38,6 +54,21 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    return user;
+    const accessToken = this.generateJwtToken(user);
+
+    return {
+      user,
+      accessToken,
+    };
+  }
+
+  private generateJwtToken(user: User): string {
+    const payload: JwtPayload = {
+      sub: user.id,
+      username: user.username,
+      email: user.email,
+    };
+
+    return this.jwtService.sign(payload);
   }
 }

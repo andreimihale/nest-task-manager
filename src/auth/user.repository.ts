@@ -138,7 +138,7 @@ export class UserRepository extends BaseRepository {
   async createUser(createUserDto: CreateUserDto): Promise<User> {
     const { username, email, password } = createUserDto;
     const hashedPassword = await this.hashPassword(password);
-    console.log(hashedPassword);
+
     const user = this.userRepository().create({
       username,
       email,
@@ -149,7 +149,6 @@ export class UserRepository extends BaseRepository {
       await this.userRepository().save(user);
       return user;
     } catch (error: unknown) {
-      console.log(error);
       if (
         error &&
         typeof error === 'object' &&
