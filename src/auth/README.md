@@ -82,11 +82,13 @@ The cookie is automatically set when you login via `/signin` endpoint and sent w
 ```typescript
 import { UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { GetUser } from './decorators/get-user.decorator';
+import { User } from './entities/user.entity';
 
 @UseGuards(JwtAuthGuard)
 @Get('/header-only')
-async headerOnlyRoute() {
-  return { message: 'Authenticated via header' };
+async headerOnlyRoute(@GetUser() user: User) {
+  return { message: `Hello ${user.username}` };
 }
 ```
 
@@ -95,11 +97,13 @@ async headerOnlyRoute() {
 ```typescript
 import { UseGuards } from '@nestjs/common';
 import { JwtCookieAuthGuard } from './guards/jwt-cookie-auth.guard';
+import { GetUser } from './decorators/get-user.decorator';
+import { User } from './entities/user.entity';
 
 @UseGuards(JwtCookieAuthGuard)
 @Get('/cookie-only')
-async cookieOnlyRoute() {
-  return { message: 'Authenticated via cookie' };
+async cookieOnlyRoute(@GetUser() user: User) {
+  return { message: `Hello ${user.username}` };
 }
 ```
 
@@ -108,11 +112,23 @@ async cookieOnlyRoute() {
 ```typescript
 import { UseGuards } from '@nestjs/common';
 import { JwtCombinedAuthGuard } from './guards/jwt-combined-auth.guard';
+import { GetUser } from './decorators/get-user.decorator';
+import { User } from './entities/user.entity';
 
 @UseGuards(JwtCombinedAuthGuard)
 @Get('/flexible')
-async flexibleRoute() {
-  return { message: 'Authenticated via header OR cookie' };
+async flexibleRoute(@GetUser() user: User) {
+  return { message: `Hello ${user.username}` };
+}
+```
+
+#### Get Current User Profile
+
+```typescript
+@UseGuards(JwtCombinedAuthGuard)
+@Get('/profile')
+getProfile(@GetUser() user: User): User {
+  return user; // Returns the authenticated user
 }
 ```
 
@@ -143,7 +159,7 @@ response.cookie('access_token', authResponse.accessToken, {
 
 ### Other Files
 
-- `decorators/get-user.decorator.ts` - Decorator to extract user from request
+- `decorators/get-user.decorator.ts` - Decorator to extract authenticated user from request
 - `dto/auth-response.dto.ts` - Response DTO for authentication endpoints
 
 ## Security Considerations

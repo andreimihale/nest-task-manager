@@ -13,13 +13,13 @@ import {
 import { ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
 import { Response } from 'express';
 import { AuthResponse, AuthService } from './auth.service';
+import { GetUser } from './decorators/get-user.decorator';
 import { AuthCredentialsDto } from './dto/auth-credentials.dto';
 import { AuthResponseDto } from './dto/auth-response.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UserFilterDto } from './dto/user-filter.dto';
 import { User } from './entities/user.entity';
-import { JwtAuthGuard } from './guards/jwt-auth.guard';
-import { JwtCookieAuthGuard } from './guards/jwt-cookie-auth.guard';
+import { JwtCombinedAuthGuard } from './guards/jwt-combined-auth.guard';
 import { UserResponse } from './user.repository';
 
 @Controller('/')
@@ -31,9 +31,9 @@ export class AuthController {
   @ApiResponse({
     status: 200,
     description: 'The user has been successfully created.',
-    type: AuthResponseDto,
+    type: User,
   })
-  async signUp(@Body() createUserDto: CreateUserDto): Promise<AuthResponse> {
+  async signUp(@Body() createUserDto: CreateUserDto): Promise<User> {
     return this.authService.signUp(createUserDto);
   }
 
@@ -67,7 +67,21 @@ export class AuthController {
     return { message: 'Logged out successfully' };
   }
 
-  @UseGuards(JwtCookieAuthGuard)
+  @UseGuards(JwtCombinedAuthGuard)
+  @UseInterceptors(ClassSerializerInterceptor)
+  @Get('/profile')
+  @ApiBearerAuth()
+  @ApiResponse({
+    status: 200,
+    description:
+      'Get current user profile (supports both JWT header and cookie authentication)',
+    type: User,
+  })
+  getProfile(@GetUser() user: User): User {
+    return user;
+  }
+
+  @UseGuards(JwtCombinedAuthGuard)
   @UseInterceptors(ClassSerializerInterceptor)
   @Get('/users')
   @ApiBearerAuth()
@@ -81,7 +95,7 @@ export class AuthController {
     return this.authService.getUsers(filterDto);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtCombinedAuthGuard)
   @UseInterceptors(ClassSerializerInterceptor)
   @Get('/users/:id')
   @ApiBearerAuth()

@@ -196,7 +196,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AuthResponseDto"
+                  "$ref": "#/components/schemas/User"
                 }
               }
             }
@@ -247,6 +247,32 @@
             "description": "The user has been successfully logged out."
           }
         },
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/api/auth/profile": {
+      "get": {
+        "operationId": "AuthController_getProfile",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Get current user profile (supports both JWT header and cookie authentication)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
         "tags": [
           "Auth"
         ]
@@ -510,21 +536,6 @@
           "email"
         ]
       },
-      "AuthResponseDto": {
-        "type": "object",
-        "properties": {
-          "user": {
-            "$ref": "#/components/schemas/User"
-          },
-          "accessToken": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "user",
-          "accessToken"
-        ]
-      },
       "AuthCredentialsDto": {
         "type": "object",
         "properties": {
@@ -538,6 +549,21 @@
         "required": [
           "username",
           "password"
+        ]
+      },
+      "AuthResponseDto": {
+        "type": "object",
+        "properties": {
+          "user": {
+            "$ref": "#/components/schemas/User"
+          },
+          "accessToken": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "user",
+          "accessToken"
         ]
       },
       "UserResponse": {

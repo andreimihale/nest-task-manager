@@ -7,8 +7,10 @@ import {
   Patch,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiQuery, ApiResponse } from '@nestjs/swagger';
+import { JwtCombinedAuthGuard } from 'src/auth/guards/jwt-combined-auth.guard';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { TasksFilterDto } from './dto/task-filter-dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
@@ -17,6 +19,7 @@ import { TaskStatus } from './task.model';
 import { TaskResponse } from './task.repository';
 import { TasksService } from './tasks.service';
 
+@UseGuards(JwtCombinedAuthGuard)
 @Controller('/')
 export class TasksController {
   constructor(private readonly tasksService: TasksService) {}

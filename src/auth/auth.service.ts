@@ -19,14 +19,10 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async signUp(createUserDto: CreateUserDto): Promise<AuthResponse> {
+  async signUp(createUserDto: CreateUserDto): Promise<User> {
     const user = await this.userRepository.createUser(createUserDto);
-    const accessToken = this.generateJwtToken(user);
 
-    return {
-      user,
-      accessToken,
-    };
+    return user;
   }
 
   async getUsers(filterDto: UserFilterDto): Promise<UserResponse> {
