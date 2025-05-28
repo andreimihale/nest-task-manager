@@ -12,13 +12,17 @@ import { TasksModule } from './tasks/tasks.module';
     }),
     DatabaseModule,
     TasksModule,
+    AuthModule,
     RouterModule.register([
       {
         path: 'api/tasks',
         module: TasksModule,
       },
+      {
+        path: 'api/auth',
+        module: AuthModule,
+      },
     ]),
-    AuthModule,
   ],
 })
 export class AppModule {}
