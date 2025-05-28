@@ -238,6 +238,20 @@
         ]
       }
     },
+    "/api/auth/logout": {
+      "post": {
+        "operationId": "AuthController_logout",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The user has been successfully logged out."
+          }
+        },
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
     "/api/auth/users": {
       "get": {
         "operationId": "AuthController_getUsers",
@@ -285,7 +299,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Get all users",
+            "description": "Get all users (supports both JWT header and cookie authentication)",
             "content": {
               "application/json": {
                 "schema": {
@@ -320,7 +334,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Get a user by id",
+            "description": "Get a user by id (JWT header authentication only)",
             "content": {
               "application/json": {
                 "schema": {
