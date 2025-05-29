@@ -9,6 +9,7 @@ import { TasksModule } from './tasks/tasks.module';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+      envFilePath: [`.env.stage.${process.env.STAGE}`],
     }),
     DatabaseModule,
     TasksModule,

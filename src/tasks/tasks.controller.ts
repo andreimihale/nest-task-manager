@@ -3,6 +3,8 @@ import {
   Controller,
   Delete,
   Get,
+  InternalServerErrorException,
+  Logger,
   Param,
   Patch,
   Post,
@@ -24,6 +26,8 @@ import { TasksService } from './tasks.service';
 @UseGuards(JwtCombinedAuthGuard)
 @Controller('/')
 export class TasksController {
+  private logger = new Logger('TasksController', { timestamp: true });
+
   constructor(private readonly tasksService: TasksService) {}
 
   @Get('/')
@@ -37,7 +41,27 @@ export class TasksController {
     @Query() filterDto: TasksFilterDto,
     @GetUser() user: User,
   ): Promise<TaskResponse> {
-    return this.tasksService.getTasksWithFilters(filterDto, user);
+    this.logger.verbose(
+      `User "${user.username}" retrieving all tasks with filters: ${JSON.stringify(
+        filterDto,
+      )}`,
+    );
+    try {
+      const response = await this.tasksService.getTasksWithFilters(
+        filterDto,
+        user,
+      );
+
+      return response;
+    } catch (error: any) {
+      this.logger.error(
+        `Error retrieving tasks for user "${user.username}" with filters: ${JSON.stringify(
+          filterDto,
+        )}`,
+        (error as Error).stack,
+      );
+      throw new InternalServerErrorException();
+    }
   }
 
   @Post('/')

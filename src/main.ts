@@ -1,4 +1,4 @@
-import { ValidationPipe } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as cookieParser from 'cookie-parser';
@@ -7,6 +7,8 @@ import { join } from 'path';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
+  const logger = new Logger();
+
   const app = await NestFactory.create(AppModule);
 
   const config = new DocumentBuilder()
@@ -38,8 +40,9 @@ async function bootstrap() {
 
   app.use(cookieParser());
   app.useGlobalPipes(new ValidationPipe());
-  // app.useGlobalInterceptors(new TransformInterceptor());
   await app.listen(process.env.PORT ?? 3000);
+
+  logger.log(`Application is running on PORT ${process.env.PORT || 3000}`);
 }
 bootstrap().catch((error) => {
   console.error('Application failed to start:', error);
