@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { User } from 'src/auth/entities/user.entity';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { TasksFilterDto } from './dto/task-filter-dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
@@ -9,26 +10,32 @@ import { TaskRepository, TaskResponse } from './task.repository';
 export class TasksService {
   constructor(private readonly taskRepository: TaskRepository) {}
 
-  async getTasksWithFilters(filterDto: TasksFilterDto): Promise<TaskResponse> {
-    const tasks = await this.taskRepository.findTasksWithFilters(filterDto);
+  async getTasksWithFilters(
+    filterDto: TasksFilterDto,
+    user: User,
+  ): Promise<TaskResponse> {
+    const tasks = await this.taskRepository.findTasksWithFilters(
+      filterDto,
+      user,
+    );
 
     return tasks;
   }
 
-  async createTask(createTaskDto: CreateTaskDto): Promise<Task> {
-    const newTask = await this.taskRepository.createTask(createTaskDto);
+  async createTask(createTaskDto: CreateTaskDto, user: User): Promise<Task> {
+    const newTask = await this.taskRepository.createTask(createTaskDto, user);
 
     return newTask;
   }
 
-  async getTaskById(id: string): Promise<Task> {
-    const task = await this.taskRepository.findTaskById(id);
+  async getTaskById(id: string, user: User): Promise<Task> {
+    const task = await this.taskRepository.findTaskById(id, user);
 
     return task;
   }
 
-  async removeTask(id: string): Promise<{ success: boolean }> {
-    await this.taskRepository.removeTask(id);
+  async removeTask(id: string, user: User): Promise<{ success: boolean }> {
+    await this.taskRepository.removeTask(id, user);
 
     return { success: true };
   }
@@ -36,8 +43,13 @@ export class TasksService {
   async updateTaskStatus(
     id: string,
     updateTaskDto: UpdateTaskDto,
+    user: User,
   ): Promise<Task> {
-    const task = await this.taskRepository.updateTaskStatus(id, updateTaskDto);
+    const task = await this.taskRepository.updateTaskStatus(
+      id,
+      updateTaskDto,
+      user,
+    );
 
     return task;
   }

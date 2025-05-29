@@ -29,7 +29,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Get all tasks",
+            "description": "Get all user`s tasks",
             "content": {
               "application/json": {
                 "schema": {
@@ -258,11 +258,11 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": "Get current user profile (supports both JWT header and cookie authentication)",
+            "description": "Get current user profile with tasks (supports both JWT header and cookie authentication)",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/User"
+                  "$ref": "#/components/schemas/ProfileResponseDto"
                 }
               }
             }
@@ -428,6 +428,9 @@
               "IN_PROGRESS",
               "DONE"
             ]
+          },
+          "userId": {
+            "type": "string"
           }
         },
         "required": [
@@ -436,7 +439,8 @@
           "updatedAt",
           "title",
           "description",
-          "status"
+          "status",
+          "userId"
         ]
       },
       "TaskResponse": {
@@ -564,6 +568,42 @@
         "required": [
           "user",
           "accessToken"
+        ]
+      },
+      "ProfileResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "username": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "tasks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Task"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "username",
+          "email",
+          "createdAt",
+          "updatedAt",
+          "tasks"
         ]
       },
       "UserResponse": {

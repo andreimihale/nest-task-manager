@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
+import { TaskRepository } from 'src/tasks/task.repository';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { JwtCookieStrategy } from './strategies/jwt-cookie.strategy';
@@ -30,7 +31,13 @@ import { UserRepository } from './user.repository';
       },
     }),
   ],
-  providers: [AuthService, UserRepository, JwtStrategy, JwtCookieStrategy],
+  providers: [
+    AuthService,
+    UserRepository,
+    TaskRepository,
+    JwtStrategy,
+    JwtCookieStrategy,
+  ],
   controllers: [AuthController],
   exports: [JwtStrategy, JwtCookieStrategy, PassportModule],
 })

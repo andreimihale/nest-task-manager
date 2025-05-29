@@ -10,6 +10,8 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiQuery, ApiResponse } from '@nestjs/swagger';
+import { GetUser } from 'src/auth/decorators/get-user.decorator';
+import { User } from 'src/auth/entities/user.entity';
 import { JwtCombinedAuthGuard } from 'src/auth/guards/jwt-combined-auth.guard';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { TasksFilterDto } from './dto/task-filter-dto';
@@ -27,12 +29,15 @@ export class TasksController {
   @Get('/')
   @ApiResponse({
     status: 200,
-    description: 'Get all tasks',
+    description: 'Get all user`s tasks',
     type: TaskResponse,
   })
   @ApiQuery({ name: 'status', enum: TaskStatus, required: false })
-  async getTasks(@Query() filterDto: TasksFilterDto): Promise<TaskResponse> {
-    return this.tasksService.getTasksWithFilters(filterDto);
+  async getTasks(
+    @Query() filterDto: TasksFilterDto,
+    @GetUser() user: User,
+  ): Promise<TaskResponse> {
+    return this.tasksService.getTasksWithFilters(filterDto, user);
   }
 
   @Post('/')
@@ -41,8 +46,11 @@ export class TasksController {
     description: 'The task has been successfully created.',
     type: Task,
   })
-  createTask(@Body() createTaskDto: CreateTaskDto): Promise<Task> {
-    return this.tasksService.createTask(createTaskDto);
+  createTask(
+    @Body() createTaskDto: CreateTaskDto,
+    @GetUser() user: User,
+  ): Promise<Task> {
+    return this.tasksService.createTask(createTaskDto, user);
   }
 
   @Get('/:taskId')
@@ -51,8 +59,11 @@ export class TasksController {
     description: 'Get a task by id',
     type: Task,
   })
-  getTaskById(@Param('taskId') taskId: string): Promise<Task> {
-    return this.tasksService.getTaskById(taskId);
+  getTaskById(
+    @Param('taskId') taskId: string,
+    @GetUser() user: User,
+  ): Promise<Task> {
+    return this.tasksService.getTaskById(taskId, user);
   }
 
   @Delete('/:taskId')
@@ -66,8 +77,11 @@ export class TasksController {
       },
     },
   })
-  removeTask(@Param('taskId') taskId: string): Promise<{ success: boolean }> {
-    return this.tasksService.removeTask(taskId);
+  removeTask(
+    @Param('taskId') taskId: string,
+    @GetUser() user: User,
+  ): Promise<{ success: boolean }> {
+    return this.tasksService.removeTask(taskId, user);
   }
 
   @Patch('/:taskId/status')
@@ -79,7 +93,8 @@ export class TasksController {
   updateTaskStatus(
     @Param('taskId') taskId: string,
     @Body() updateTaskDto: UpdateTaskDto,
+    @GetUser() user: User,
   ): Promise<Task> {
-    return this.tasksService.updateTaskStatus(taskId, updateTaskDto);
+    return this.tasksService.updateTaskStatus(taskId, updateTaskDto, user);
   }
 }

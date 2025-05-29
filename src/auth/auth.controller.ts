@@ -17,6 +17,7 @@ import { GetUser } from './decorators/get-user.decorator';
 import { AuthCredentialsDto } from './dto/auth-credentials.dto';
 import { AuthResponseDto } from './dto/auth-response.dto';
 import { CreateUserDto } from './dto/create-user.dto';
+import { ProfileResponseDto } from './dto/profile-response.dto';
 import { UserFilterDto } from './dto/user-filter.dto';
 import { User } from './entities/user.entity';
 import { JwtCombinedAuthGuard } from './guards/jwt-combined-auth.guard';
@@ -74,11 +75,11 @@ export class AuthController {
   @ApiResponse({
     status: 200,
     description:
-      'Get current user profile (supports both JWT header and cookie authentication)',
-    type: User,
+      'Get current user profile with tasks (supports both JWT header and cookie authentication)',
+    type: ProfileResponseDto,
   })
-  getProfile(@GetUser() user: User): User {
-    return user;
+  getProfile(@GetUser() user: User): Promise<ProfileResponseDto> {
+    return this.authService.getProfile(user);
   }
 
   @UseGuards(JwtCombinedAuthGuard)

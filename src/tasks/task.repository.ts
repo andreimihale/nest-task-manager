@@ -5,6 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { ApiProperty } from '@nestjs/swagger';
+import { User } from 'src/auth/entities/user.entity';
 import { BaseRepository } from 'src/base.repository';
 import { DataSource, EntityManager, Repository } from 'typeorm';
 import { validate as uuidValidate } from 'uuid';
@@ -31,11 +32,15 @@ export class TaskRepository extends BaseRepository {
     return this.getRepository(Task, entityManager);
   }
 
-  async findTasksWithFilters(filterDto: TasksFilterDto): Promise<TaskResponse> {
+  async findTasksWithFilters(
+    filterDto: TasksFilterDto,
+    user: User,
+  ): Promise<TaskResponse> {
     const { status, search } = filterDto;
     const taskRepository = this.taskRepository();
 
     const query = taskRepository.createQueryBuilder('task');
+    query.where('task.userId = :userId', { userId: user.id });
 
     if (status) {
       query.andWhere('task.status = :status', { status });
@@ -57,12 +62,14 @@ export class TaskRepository extends BaseRepository {
     return { tasks, total };
   }
 
-  async findTaskById(id: string): Promise<Task> {
+  async findTaskById(id: string, user: User): Promise<Task> {
     if (!uuidValidate(id)) {
       throw new BadRequestException('Invalid task id');
     }
     const taskRepository = this.taskRepository();
-    const task = await taskRepository.findOne({ where: { id } });
+    const task = await taskRepository.findOne({
+      where: { id, userId: user.id },
+    });
 
     if (!task) {
       throw new NotFoundException('Task not found');
@@ -70,12 +77,13 @@ export class TaskRepository extends BaseRepository {
     return task;
   }
 
-  async createTask(createTaskDto: CreateTaskDto): Promise<Task> {
+  async createTask(createTaskDto: CreateTaskDto, user: User): Promise<Task> {
     const { title, description } = createTaskDto;
 
-    const task: CreateTaskDto = {
+    const task = {
       title,
       description,
+      userId: user.id,
     };
 
     const newTask = await this.taskRepository().save(task);
@@ -83,12 +91,12 @@ export class TaskRepository extends BaseRepository {
     return newTask;
   }
 
-  async removeTask(id: string): Promise<void> {
+  async removeTask(id: string, user: User): Promise<void> {
     if (!uuidValidate(id)) {
       throw new BadRequestException('Invalid task id');
     }
     const taskRepository = this.taskRepository();
-    const { affected } = await taskRepository.delete(id);
+    const { affected } = await taskRepository.delete({ id, userId: user.id });
 
     if (affected === 0) {
       throw new NotFoundException('Task not found');
@@ -98,12 +106,27 @@ export class TaskRepository extends BaseRepository {
   async updateTaskStatus(
     id: string,
     updateTaskDto: UpdateTaskDto,
+    user: User,
   ): Promise<Task> {
-    const task = await this.findTaskById(id);
+    const task = await this.findTaskById(id, user);
 
     task.status = updateTaskDto.status;
 
     await this.taskRepository().save(task);
     return task;
+  }
+
+  async findTasksByUserId(userId: string): Promise<Task[]> {
+    if (!uuidValidate(userId)) {
+      throw new BadRequestException('Invalid user id');
+    }
+
+    const taskRepository = this.taskRepository();
+    const tasks = await taskRepository.find({
+      where: { userId },
+      order: { createdAt: 'DESC' },
+    });
+
+    return tasks;
   }
 }
